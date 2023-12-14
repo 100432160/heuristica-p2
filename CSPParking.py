@@ -7,8 +7,8 @@ problem = Problem()
 
 
 # Definicion tamaño del parking
-filas = 5
-columnas = 6
+filas = 3
+columnas = 3
 
 # Plazas del parking
 plazas_parking = []
@@ -19,7 +19,7 @@ for i in range(filas):
 print("Todas las plazas:", plazas_parking)
 
 # Plazas con electricidad del parking
-plazas_electricas = [(1, 1), (1, 2), (2, 1), (4, 1), (5, 1), (5, 2)]
+plazas_electricas = [(1, 1), (1, 2), (2, 1), (2, 2), (3, 1), (3, 2)]
 print("Plazas eléctricas:", plazas_electricas)
 
 
@@ -40,14 +40,37 @@ problem.addVariable('8-TSU-C', plazas_electricas)
 
 # 2. Dos vehículos distintos no pueden ocupar la misma plaza
 # def notEqual(a, b):
-    
-    
 problem.addConstraint(AllDifferentConstraint(), ('1-TSU-C', '2-TNU-X', '3-TNU-X', '4-TNU-C', '5-TSU-X', '6-TNU-X', '7-TNU-C', '8-TSU-C'))
 
 # 3. Los vehículos provistos de congelador sólo pueden ocupar plazas con conexión a la red eléctrica
 
 
 # 4. Un vehículo de tipo TSU no puede tener aparcado por delante, en su misma fila, ningún otro vehículo excepto si este también es TSU
+def delante_de(a, b):
+    if (a[0] == b[0]):
+        if (a[1] > b[1]):
+            return True
+    else:
+        return True
+    
+problem.addConstraint(delante_de, ('1-TSU-C', '2-TNU-X'))
+problem.addConstraint(delante_de, ('1-TSU-C', '3-TNU-X'))
+problem.addConstraint(delante_de, ('1-TSU-C', '4-TNU-C'))
+problem.addConstraint(delante_de, ('1-TSU-C', '6-TNU-X'))
+problem.addConstraint(delante_de, ('1-TSU-C', '7-TNU-C'))
+
+problem.addConstraint(delante_de, ('5-TSU-X', '2-TNU-X'))
+problem.addConstraint(delante_de, ('5-TSU-X', '3-TNU-X'))
+problem.addConstraint(delante_de, ('5-TSU-X', '4-TNU-C'))
+problem.addConstraint(delante_de, ('5-TSU-X', '6-TNU-X'))
+problem.addConstraint(delante_de, ('5-TSU-X', '7-TNU-C'))
+
+problem.addConstraint(delante_de, ('8-TSU-C', '2-TNU-X'))
+problem.addConstraint(delante_de, ('8-TSU-C', '3-TNU-X'))
+problem.addConstraint(delante_de, ('8-TSU-C', '4-TNU-C'))
+problem.addConstraint(delante_de, ('8-TSU-C', '6-TNU-X'))
+problem.addConstraint(delante_de, ('8-TSU-C', '7-TNU-C'))
+
 
 
 # 5. Por cuestiones de maniobrabilidad dentro del parking todo vehículo debe tener libre una plaza a la izquierda o derecha (mirando en dirección a la salida)
@@ -63,4 +86,4 @@ def imprimir_todas_soluciones(soluciones):
 		print(solucion)
 
 print("Nº de soluciones:", len(todas_soluciones))
-imprimir_todas_soluciones(todas_soluciones)
+# imprimir_todas_soluciones(todas_soluciones)
