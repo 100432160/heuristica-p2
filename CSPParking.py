@@ -24,6 +24,23 @@ print("Plazas eléctricas:", plazas_electricas)
 
 
 # Creacion de las variables
+vehiculos = ('1-TSU-C', '2-TNU-X', '3-TNU-X', '4-TNU-C', '5-TSU-X', '6-TNU-X', '7-TNU-C', '8-TSU-C')
+
+def tiene_congelador(vehiculo):
+    split_nombre = vehiculo.split("-")
+    if (split_nombre[2] == "C"):
+        return True
+    else:
+        return False
+
+for vehiculo in vehiculos:
+    necesita_electricidad = tiene_congelador(vehiculo)
+    if (necesita_electricidad):
+        problem.addVariable(vehiculo, plazas_electricas)
+    else:
+        problem.addVariable(vehiculo, plazas_parking)
+
+"""
 problem.addVariable('1-TSU-C', plazas_electricas)
 problem.addVariable('2-TNU-X', plazas_parking)
 problem.addVariable('3-TNU-X', plazas_parking)
@@ -32,6 +49,7 @@ problem.addVariable('5-TSU-X', plazas_parking)
 problem.addVariable('6-TNU-X', plazas_parking)
 problem.addVariable('7-TNU-C', plazas_electricas)
 problem.addVariable('8-TSU-C', plazas_electricas)
+"""
 
 
 # Creación de las restricciones
@@ -40,7 +58,7 @@ problem.addVariable('8-TSU-C', plazas_electricas)
 
 # 2. Dos vehículos distintos no pueden ocupar la misma plaza
 # def notEqual(a, b):
-problem.addConstraint(AllDifferentConstraint(), ('1-TSU-C', '2-TNU-X', '3-TNU-X', '4-TNU-C', '5-TSU-X', '6-TNU-X', '7-TNU-C', '8-TSU-C'))
+problem.addConstraint(AllDifferentConstraint(), (vehiculos))
 
 # 3. Los vehículos provistos de congelador sólo pueden ocupar plazas con conexión a la red eléctrica
 
@@ -53,27 +71,44 @@ def delante_de(a, b):
     else:
         return True
     
+def es_TSU(vehiculo):
+    split_nombre = vehiculo.split("-")
+    if (split_nombre[1] == "TSU"):
+        return True
+    else:
+        return False
+
+for vehiculo in vehiculos:
+    if (es_TSU(vehiculo)):
+        for otro_vehiculo in vehiculos:
+            if ((vehiculo != otro_vehiculo) and (es_TSU(otro_vehiculo) == False)):
+                problem.addConstraint(delante_de, (vehiculo, otro_vehiculo))
+                print(vehiculo, "delante_de", otro_vehiculo)
+
+"""
 problem.addConstraint(delante_de, ('1-TSU-C', '2-TNU-X'))
 problem.addConstraint(delante_de, ('1-TSU-C', '3-TNU-X'))
 problem.addConstraint(delante_de, ('1-TSU-C', '4-TNU-C'))
 problem.addConstraint(delante_de, ('1-TSU-C', '6-TNU-X'))
 problem.addConstraint(delante_de, ('1-TSU-C', '7-TNU-C'))
-
 problem.addConstraint(delante_de, ('5-TSU-X', '2-TNU-X'))
 problem.addConstraint(delante_de, ('5-TSU-X', '3-TNU-X'))
 problem.addConstraint(delante_de, ('5-TSU-X', '4-TNU-C'))
 problem.addConstraint(delante_de, ('5-TSU-X', '6-TNU-X'))
 problem.addConstraint(delante_de, ('5-TSU-X', '7-TNU-C'))
-
 problem.addConstraint(delante_de, ('8-TSU-C', '2-TNU-X'))
 problem.addConstraint(delante_de, ('8-TSU-C', '3-TNU-X'))
 problem.addConstraint(delante_de, ('8-TSU-C', '4-TNU-C'))
 problem.addConstraint(delante_de, ('8-TSU-C', '6-TNU-X'))
 problem.addConstraint(delante_de, ('8-TSU-C', '7-TNU-C'))
-
+"""
 
 
 # 5. Por cuestiones de maniobrabilidad dentro del parking todo vehículo debe tener libre una plaza a la izquierda o derecha (mirando en dirección a la salida)
+
+
+
+
 
 
 
