@@ -1,13 +1,26 @@
+import sys
 import time
 # IMPORTACIÓN DE LA LIBRERÍA
 from constraint import *
+
+
+# Manejo de argumentos recibidos
+if (len(sys.argv) != 2):
+    print("El número de argumentos no es válido")
+    print("Introduce solo: python CSPParking.py <nombre_fichero_prueba>")
+    sys.exit(1)
+
+fichero_entrada = sys.argv[1]
+
+fichero_salida = fichero_entrada.replace(".txt", ".csv")
+
 
 
 #######################################################################################################
 # PROCESAR LOS DATOS DEL FICHERO DE PRUEBA
 #######################################################################################################
 # Abre el archivo en modo lectura
-with open('./pruebas/prueba_enunciado.txt', 'r') as file:
+with open(fichero_entrada, 'r') as file:
     # Lee todas las líneas del archivo y las almacena en una lista
     lines = file.readlines()
 
