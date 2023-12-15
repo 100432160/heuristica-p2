@@ -1,5 +1,6 @@
 import sys
 import time
+import random
 import pandas as pd
 # IMPORTACIÓN DE LA LIBRERÍA
 from constraint import *
@@ -170,17 +171,14 @@ problem.addConstraint(tiene_un_lado_libre, vehiculos)
 inicio = time.time()
 print("----------------------------------------------------")
 todas_soluciones = problem.getSolutions()
+num_soluciones = len(todas_soluciones)
 
-def imprimir_n_soluciones(soluciones, numero_soluciones):
-	for i in range(numero_soluciones):
-		print(soluciones[i])
-
-print("Nº de soluciones:", len(todas_soluciones))
-imprimir_n_soluciones(todas_soluciones, 10)
+print(fichero_entrada)
+print("Nº de soluciones:", num_soluciones)
 
 final = time.time()
 print("Tiempo de ejecución:", round((final-inicio), 2), "segundos")
-print("----------------------------------------------------")
+# print("----------------------------------------------------")
 
 
 # ESCRIBIR LA SOLUCION EN UN DATAFRAME
@@ -190,9 +188,12 @@ matriz = [['-' for _ in range(columnas)] for _ in range(filas)]
 primera_fila = ['N. sol', len(todas_soluciones)]
 
 # Llenar la matriz con los valores del diccionario en las posiciones correctas
-for clave, valor in todas_soluciones[0].items():
-    fila, columna = valor
-    matriz[fila - 1][columna - 1] = clave
+if num_soluciones > 0:
+    # en cada ejecución muestra un ejemplo de solución distinto
+    num_aleatorio = random.randint(0, num_soluciones)
+    for clave, valor in todas_soluciones[num_aleatorio].items():
+        fila, columna = valor
+        matriz[fila - 1][columna - 1] = clave
 
 matriz.insert(0, primera_fila)
 
