@@ -1,5 +1,6 @@
 import sys
 import time
+import pandas as pd
 # IMPORTACIÓN DE LA LIBRERÍA
 from constraint import *
 
@@ -180,3 +181,23 @@ imprimir_n_soluciones(todas_soluciones, 10)
 final = time.time()
 print("Tiempo de ejecución:", round((final-inicio), 2), "segundos")
 print("----------------------------------------------------")
+
+
+# ESCRIBIR LA SOLUCION EN UN DATAFRAME
+# Crear una matriz llena de valores None
+matriz = [['-' for _ in range(columnas)] for _ in range(filas)]
+
+primera_fila = ['N. sol', len(todas_soluciones)]
+
+# Llenar la matriz con los valores del diccionario en las posiciones correctas
+for clave, valor in todas_soluciones[0].items():
+    fila, columna = valor
+    matriz[fila - 1][columna - 1] = clave
+
+matriz.insert(0, primera_fila)
+
+# Crear un DataFrame a partir de la matriz
+df = pd.DataFrame(matriz)
+
+print(df)
+df.to_csv(fichero_salida, index=None, header=False)
