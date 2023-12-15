@@ -3,30 +3,56 @@ import time
 from constraint import *
 
 
-# DEFINICIÓN DEL PROBLEMA
-problem = Problem()
+#######################################################################################################
+# PROCESAR LOS DATOS DEL FICHERO DE PRUEBA
+#######################################################################################################
+# Abre el archivo en modo lectura
+with open('./pruebas/prueba_enunciado.txt', 'r') as file:
+    # Lee todas las líneas del archivo y las almacena en una lista
+    lines = file.readlines()
+
+file.close()
 
 
-# TAMAÑO DEL PARKING
-filas = 5
-columnas = 6
+# Procesar las filas
+for i in range(len(lines)):
+    lines[i] = lines[i].replace("\n", "")
+    lines[i] = lines[i].replace("PE: ", "")
 
 
-# PLAZAS DEL PARKING
+# TAMAÑO DEL  PARKING
+parking_size = lines[0].split("x")
+filas = int(parking_size[0])
+columnas = int(parking_size[1])
+
+
+# PLAZAS ELECTRICAS
+pe = lines[1].split(" ")
+plazas_electricas = []
+for plaza in pe:
+    # Elimina los paréntesis y divide la cadena en una lista de elementos
+    elementos = plaza.strip('()').split(',')
+    # Convierte cada elemento de la lista en un entero
+    plaza = tuple(int(elemento) for elemento in elementos)
+    plazas_electricas.append(plaza)
+
+
+# TODAS LAS PLAZAS DEL PARKING
 plazas_parking = []
 for i in range(filas):
     for j in range(columnas):
         plazas_parking.append((i+1, j+1))
 
 
-# PLAZAS CON ELECTRICIDAD
-plazas_electricas = [(1, 1), (1, 2), (2, 1), (4, 1), (5,1), (5, 2)]
-# plazas_electricas = [(1, 1), (1, 2), (2, 1), (2, 2), (3,1), (3, 2)]
-
-
 # VEHICULOS
-vehiculos = ('1-TSU-C', '2-TNU-X', '3-TNU-X', '4-TNU-C', '5-TSU-X', '6-TNU-X', '7-TNU-C', '8-TSU-C')
-# vehiculos = ('1-TNU-X', '2-TNU-X', '3-TNU-X', '4-TNU-C', '5-TSU-X')
+vehiculos = []
+for i in range(2, len(lines)):
+    vehiculos.append(lines[i])
+
+
+
+# DEFINICIÓN DEL PROBLEMA
+problem = Problem()
 
 
 
