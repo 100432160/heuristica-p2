@@ -1,33 +1,36 @@
-# Importar la libreria
+import time
+# IMPORTACIÓN DE LA LIBRERÍA
 from constraint import *
 
 
-# Definicion de una variable como nuestro problema
+# DEFINICIÓN DEL PROBLEMA
 problem = Problem()
 
 
-# Definicion tamaño del parking
-filas = 3
-columnas = 3
+# TAMAÑO DEL PARKING
+filas = 5
+columnas = 6
 
-# Plazas del parking
+
+# PLAZAS DEL PARKING
 plazas_parking = []
 for i in range(filas):
     for j in range(columnas):
         plazas_parking.append((i+1, j+1))
 
-print("Todas las plazas:", plazas_parking)
 
-# Plazas con electricidad del parking
-# plazas_electricas = [(1, 1), (1, 2), (2, 1), (4, 1), (5,1), (5, 2)]
-plazas_electricas = [(1, 1), (1, 2), (2, 1), (2, 2), (3,1), (3, 2)]
-print("Plazas eléctricas:", plazas_electricas)
+# PLAZAS CON ELECTRICIDAD
+plazas_electricas = [(1, 1), (1, 2), (2, 1), (4, 1), (5,1), (5, 2)]
+# plazas_electricas = [(1, 1), (1, 2), (2, 1), (2, 2), (3,1), (3, 2)]
 
 
-# Creacion de las variables
-# vehiculos = ('1-TSU-C', '2-TNU-X', '3-TNU-X', '4-TNU-C', '5-TSU-X', '6-TNU-X', '7-TNU-C', '8-TSU-C')
-vehiculos = ('1-TNU-X', '2-TNU-X', '3-TNU-X')
+# VEHICULOS
+vehiculos = ('1-TSU-C', '2-TNU-X', '3-TNU-X', '4-TNU-C', '5-TSU-X', '6-TNU-X', '7-TNU-C', '8-TSU-C')
+# vehiculos = ('1-TNU-X', '2-TNU-X', '3-TNU-X', '4-TNU-C', '5-TSU-X')
 
+
+
+# Funcion para determinar si un vehiculo tiene congelador o no
 def tiene_congelador(vehiculo):
     split_nombre = vehiculo.split("-")
     if (split_nombre[2] == "C"):
@@ -35,6 +38,13 @@ def tiene_congelador(vehiculo):
     else:
         return False
 
+
+
+#######################################################################################################
+# VARIABLES Y DOMINIOS
+#######################################################################################################
+
+# El dominio de un vehiculo depende de si tiene congelador o no (RESTRICCIÓN 3)
 for vehiculo in vehiculos:
     necesita_electricidad = tiene_congelador(vehiculo)
     if (necesita_electricidad):
@@ -44,18 +54,23 @@ for vehiculo in vehiculos:
 
 
 
-# Creación de las restricciones
-# 1. Todo vehículo tiene que tener asignada una plaza y solo una
+#######################################################################################################
+# RESTRICCIONES
+#######################################################################################################
+
+# RESTRICCION 1. Todo vehículo tiene que tener asignada una plaza y solo una
+# Esta restriccion no hace falta ponerla explicitamente puesto que la librería solo asigna un valor a cada variable
 
 
-# 2. Dos vehículos distintos no pueden ocupar la misma plaza
-# def notEqual(a, b):
+# RESTRICCION 2. Dos vehículos distintos no pueden ocupar la misma plaza
 problem.addConstraint(AllDifferentConstraint(), (vehiculos))
 
-# 3. Los vehículos provistos de congelador sólo pueden ocupar plazas con conexión a la red eléctrica
+
+# RESTRICCION 3. Los vehículos provistos de congelador sólo pueden ocupar plazas con conexión a la red eléctrica
+# Esta restriccion se define al limitar el dominio de los vehiculos con congelador a las plazas electricas
 
 
-# 4. Un vehículo de tipo TSU no puede tener aparcado por delante, en su misma fila, ningún otro vehículo excepto si este también es TSU
+# RESTRICCION 4. Un vehículo de tipo TSU no puede tener aparcado por delante, en su misma fila, ningún otro vehículo excepto si este también es TSU
 def delante_de(a, b):
     if (a[0] == b[0]):
         if (a[1] > b[1]):
@@ -79,71 +94,50 @@ for vehiculo in vehiculos:
 
 
 
-# 5. Por cuestiones de maniobrabilidad dentro del parking todo vehículo debe tener libre una plaza a la izquierda o derecha (mirando en dirección a la salida)
+# RESTRICCION 5. Por cuestiones de maniobrabilidad dentro del parking todo vehículo debe tener libre una plaza a la izquierda o derecha (mirando en dirección a la salida)
 def tiene_un_lado_libre(*vehiculos):
     for vehiculo in vehiculos:
         posicion_izquierda = (vehiculo[0]-1, vehiculo[1])
         posicion_derecha = (vehiculo[0]+1, vehiculo[1])
-
-        derecha_libre = False
-        izquierda_libre = False
-
-        izquierda_disponible = True
-        derecha_disponible = True
-        if (posicion_izquierda not in plazas_parking):
-            izquierda_disponible = False
-        if (posicion_derecha not in plazas_parking):
-            derecha_disponible = False
+        derecha_ocupada = False
+        izquierda_ocupada = False
 
         for vehiculo_comparacion in vehiculos:
-            if vehiculo != vehiculo_comparacion:    # Comparar con los demas vehiculos, no consigo mismo
-                izquierda_ocupada = False
-                derecha_ocupada = False
-                izquierda_disponible = True
-                derecha_disponible = True
+            if (posicion_izquierda == vehiculo_comparacion):
+                izquierda_ocupada = True
+            if (posicion_derecha == vehiculo_comparacion):
+                derecha_ocupada = True
+            
+            # Si la plaza derecha y la izquierda estan ocupadas
+            if (derecha_ocupada and izquierda_ocupada):
+                return False
+            # Si la plaza derecha esta ocupada y la izquierda existe
+            if (derecha_ocupada and posicion_izquierda[0] < 1):
+                return False
+            # Si la plaza izquierda esta ocupada y la derecha no existe
+            if (izquierda_ocupada and posicion_derecha[0] > filas):
+                return False
+            
+    # Si no se dan las condiciones anteriores, es decir, al menos tiene un lado libre
+    return True
                 
-                if (vehiculo[1] == vehiculo_comparacion[1]):    # si estan en la misma columna
-                    if (posicion_izquierda[0] == vehiculo_comparacion[0]):
-                        izquierda_ocupada = True
-                    elif (posicion_derecha[0] == vehiculo_comparacion[0]):
-                        derecha_ocupada = True
-
-                if (derecha_disponible and derecha_ocupada == False):
-                    derecha_libre = True
-                if (izquierda_disponible and izquierda_ocupada == False):
-                    izquierda_libre = True
-                
-
-                print("---------------------------------------------------")
-                print("Comparar", vehiculo, "con", vehiculo_comparacion)
-                print("Derecha ocupada:", derecha_ocupada)
-                print("Derecha disponible:", derecha_disponible)
-                print("Derecha libre:", derecha_libre)
-                print("Izquierda ocupada:", izquierda_ocupada)
-                print("Izquierda disponible:", izquierda_disponible)
-                print("Izquierda libre:", izquierda_libre)
-
-        if (izquierda_libre or derecha_libre):
-            return True
-
 
 problem.addConstraint(tiene_un_lado_libre, vehiculos)
-
-
+                
 
 
 # Recuperacion de las soluciones
+inicio = time.time()
 print("----------------------------------------------------")
 todas_soluciones = problem.getSolutions()
 
-def imprimir_todas_soluciones(soluciones):
-	for solucion in soluciones:
-		print(solucion)
-
-def imprimir_soluciones(soluciones, numero_soluciones):
+def imprimir_n_soluciones(soluciones, numero_soluciones):
 	for i in range(numero_soluciones):
 		print(soluciones[i])
 
 print("Nº de soluciones:", len(todas_soluciones))
-# imprimir_todas_soluciones(todas_soluciones)
-imprimir_soluciones(todas_soluciones, 10)
+imprimir_n_soluciones(todas_soluciones, 10)
+
+final = time.time()
+print("Tiempo de ejecución:", round((final-inicio), 2), "segundos")
+print("----------------------------------------------------")
